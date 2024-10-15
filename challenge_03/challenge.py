@@ -1,8 +1,9 @@
 #Load the inputs
 f = open("input.txt", "r")
 
-symbol_idxs = []
+# symbol_idxs = []
 digit_ranges = []
+row_strs = []
 
 all_symbols = []
 all_digits = []
@@ -15,36 +16,39 @@ count = 5
 
 numeric = [str(x) for x in range(10)]
 
+def get_digit_range(i, digit):
+    start = i-len(digit)-1
+    if start < 0:
+        start = 0
+
+    return [start, i, int(digit)]
+
 for x in f:
     digit = ''
+    row_strs.append(x)
     unique_symbols = []
-    row_symbol_idxs = []
+    # row_symbol_idxs = []
     row_digit_ranges = []
 
     for i in range(len(x)-1):
         c = x[i]
+        
         if c != '.':
             if c in numeric:
                 digit += c
                 if i == (len(x) - 2):
-                    row_digit_ranges.append([i-len(digit),i, int(digit)])
-                    all_digits.append(digit)
+                    row_digit_ranges.append(get_digit_range(i, digit))
                     digit = ''
             else:
                 if digit != '':
-                    row_digit_ranges.append([i-len(digit)-1,i, int(digit)])
-                    all_digits.append(digit)
+                    row_digit_ranges.append(get_digit_range(i, digit))
                     digit = ''
-
-                row_symbol_idxs.append([i, c])
-                all_symbols.append(c)
         else:
             if digit != '':
-                row_digit_ranges.append([i-len(digit),i, int(digit)])
-                all_digits.append(digit)
+                row_digit_ranges.append(get_digit_range(i, digit))
                 digit = ''
     
-    symbol_idxs.append(row_symbol_idxs)
+    # symbol_idxs.append(row_symbol_idxs)
     digit_ranges.append(row_digit_ranges) 
     
 part_numbers = []
@@ -66,9 +70,11 @@ def check_digit_row(symbols, d, printRows=False):
             part_numbers.append(int(d[2]))
             return True
 
-loopNum = len(symbol_idxs)
+loopNum = len(digit_ranges)
+printRows = True
 
-printRows = False
+def is_symbol(c):
+    return c not in numeric and c != '.'
 
 for i in range(loopNum): 
     start_idx = i-1 if i>0 else 0
@@ -77,9 +83,12 @@ for i in range(loopNum):
     for d in digit_ranges[i]:
         if printRows: print(f'Check {d[2]}')
         for j in range(start_idx, end_idx+1):
-            if printRows: print(f'Symbol Row: {symbol_idxs[j]}')
-            result = check_digit_row(symbol_idxs[j], d, printRows)
-            if result: break
+            slice_str = row_strs[j][d[0]:d[1]+1]
+            if printRows: print(slice_str)
+            if any(c not in numeric and c != '.' for c in slice_str):
+                if printRows: print('match')
+                part_numbers.append(d[2])
+                break
     
-print(digit_ranges[5])
+print(sum(part_numbers))
     
