@@ -9,13 +9,13 @@ import (
 )
 
 func isSymbol(c byte) bool {
-	symbols := "*#+$"
+	symbols := ".0123456789"
 	for i := 0; i < len(symbols); i++ {
 		if c == symbols[i] {
-			return true
+			return false
 		}
 	}
-	return false
+	return true
 }
 
 func findNumbers(row string) []string {
